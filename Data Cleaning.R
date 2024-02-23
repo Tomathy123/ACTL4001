@@ -2,7 +2,7 @@
 cat("\014") # Clear console
 rm(list=ls()) # Clear Environment
 
-setwd("/Users/arneetkalra/Desktop/UNSW Onedrive/UNI/2024/ACTL4001/Assignment/Data")
+setwd("/Users/arneetkalra/Desktop/UNSW Onedrive/UNI/2024/ACTL4001/Assignment/Data") #change to your own
 
 library(tidyverse)
 library(dplyr)
