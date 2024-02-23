@@ -22,12 +22,22 @@ eco_data <- read.csv("economy_data.csv", header = TRUE)
 mortality_data <- read.csv("mortality_data.csv", header = TRUE)
 
 # Number of Smokers by Age and Urban/Rural
-smokers <- inforce_data %>%
+smokers_byage <- inforce_data %>%
   group_by(Issue.age, Urban.vs.Rural) %>%
   summarise(Total_Smokers = sum(Smoker.Status=="S"))
 
-ggplot(smokers, aes(Issue.age, Total_Smokers, fill = Urban.vs.Rural)) +
+ggplot(smokers_byage, aes(Issue.age, Total_Smokers, fill = Urban.vs.Rural)) +
   geom_bar(stat = "identity", position = "dodge")
+
+
+# Cohort Smoker Analysis - Issue Year
+smokers_bycohort <- inforce_data %>%
+  group_by(Issue.year, Urban.vs.Rural) %>%
+  summarise(Total_Smokers = sum(Smoker.Status=="S"))
+
+ggplot(smokers_bycohort, aes(Issue.year, Total_Smokers, fill = Urban.vs.Rural)) + 
+  geom_bar(stat = "identity", position = "dodge")
+
 
 # Economy Data
 ggplot(eco_data, aes(x = Year)) + 
@@ -41,6 +51,3 @@ ggplot(eco_data, aes(x = Year)) +
                                 "10-yr Risk Free Rate" = "red")) +
   labs(color = "Variable") +
   theme_minimal()
-
-# Cohort Analysis - Issue Year
-
