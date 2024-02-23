@@ -57,3 +57,24 @@ ggplot(eco_data, aes(x = Year)) +
                                 "10-yr Risk Free Rate" = "red")) +
   labs(color = "Variable") +
   theme_minimal()
+
+
+# Number of death by cohort
+# inforce_data$Death.indicator <- as.character(inforce_data$Death.indicator)
+# 
+# inforce_data$Dead_new <- ifelse(inforce_data$Death.indicator == 1, "dead", "alive")
+# 
+# death_bycohort <- inforce_data %>%
+#   group_by(Issue.age, Urban.vs.Rural) %>%
+#   summarise(Total_Death = sum(Death.indicator=="dead"))
+
+
+
+# Count of Urban and Rural 
+count <- inforce_data %>%
+  group_by(Issue.age) %>%
+  summarise(Total_urban = sum(Urban.vs.Rural=="Urban"), Total_rural = sum(Urban.vs.Rural=="Rural"))
+
+count2 <- inforce_data %>%
+  summarise(Total_urban = sum(Urban.vs.Rural=="Urban"), Total_rural = sum(Urban.vs.Rural=="Rural"))
+
