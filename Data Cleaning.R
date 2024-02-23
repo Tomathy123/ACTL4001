@@ -3,6 +3,12 @@ cat("\014") # Clear console
 rm(list=ls()) # Clear Environment
 
 setwd("/Users/arneetkalra/Desktop/UNSW Onedrive/UNI/2024/ACTL4001/Assignment/Data") #change to your own
+# setwd("/Users/karandeshwal/Documents/R/ACTL4001")
+
+# install.packages('tidyverse')
+# install.packages('dplyr')
+# install.packages('readxl')
+# install.packages('openxlsx')
 
 library(tidyverse)
 library(dplyr)
