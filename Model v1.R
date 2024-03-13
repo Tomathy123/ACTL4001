@@ -74,32 +74,32 @@ test <- t_20[c(1:5),]
 
 # THE MODEL FOR BASE PREMIUM
 # Arneet's trial down below:
-calculate_premium <- function(issue_year, issue_age, face_amount, mortality_rate, interest_rate) {
-  term_years <- 20
-  premium_payments <- numeric(term_years) # To store premium payments for each year
-
-  for (i in 1:term_years) {
-    current_age <- issue_age + i - 1
-    if (current_age > 120) break
-    mortality_rate <- mortality_data$Mortality.Rate[mortality_data$Age == current_age] # Need to find and use exposure
-    if (length(mortality_rate) == 0) next # Skip if no matching mortality rate
-    current_year <- issue_year + i - 1
-    interest_rate <- ifelse(current_year > 2023, avg_factor, eco_data$factors)
-
-    # Calculate expected payout for the year
-    expected_payout <- face_amount * mortality_rate
-    # Discount to present value
-    pv_expected_payout <- expected_payout / ((interest_rate)^i)
-    premium_payments[i] <- pv_expected_payout
-  }
-  # sum of discounted premium payouts
-  premium <- sum(premium_payments) / sum(1 / ((interest_rate[as.character(issue_year:(issue_year+19))])^(1:term_years))) # Need to fix this part here
-  return(premium)
-}
-
-premium_for_policyholder <- calculate_premium(test$Issue.year[1], test$Issue.age[1], test$Face.amount[1], mortality_data$Mortality.Rate, eco_data$factors)
-
-
+# calculate_premium <- function(issue_year, issue_age, face_amount, mortality_rate, interest_rate) {
+#   term_years <- 20
+#   premium_payments <- numeric(term_years) # To store premium payments for each year
+# 
+#   for (i in 1:term_years) {
+#     current_age <- issue_age + i - 1
+#     if (current_age > 120) break
+#     mortality_rate <- mortality_data$Mortality.Rate[mortality_data$Age == current_age] # Need to find and use exposure
+#     if (length(mortality_rate) == 0) next # Skip if no matching mortality rate
+#     current_year <- issue_year + i - 1
+#     interest_rate <- ifelse(current_year > 2023, avg_factor, eco_data$factors)
+# 
+#     # Calculate expected payout for the year
+#     expected_payout <- face_amount * mortality_rate
+#     # Discount to present value
+#     pv_expected_payout <- expected_payout / ((interest_rate)^i)
+#     premium_payments[i] <- pv_expected_payout
+#   }
+#   # sum of discounted premium payouts
+#   premium <- sum(premium_payments) / sum(1 / ((interest_rate[as.character(issue_year:(issue_year+19))])^(1:term_years))) # Need to fix this part here
+#   return(premium)
+# }
+# 
+# premium_for_policyholder <- calculate_premium(test$Issue.year[1], test$Issue.age[1], test$Face.amount[1], mortality_data$Mortality.Rate, eco_data$factors)
+# 
+# 
 
 
 
@@ -115,7 +115,7 @@ premium_for_policyholder <- calculate_premium(test$Issue.year[1], test$Issue.age
 
 
 # Exporting Mortality, Economic and Premium data into a csv
-write_csv(intervention_data, "intervention_data.csv")
-write_csv(eco_data, "economy_data.csv")
-write_csv(inforce_data, "inforce_data.csv")
-write_csv(mortality_data, "mortality_data.csv")
+# write_csv(intervention_data, "intervention_data.csv")
+# write_csv(eco_data, "economy_data.csv")
+# write_csv(inforce_data, "inforce_data.csv")
+# write_csv(mortality_data, "mortality_data.csv")
