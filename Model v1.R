@@ -92,7 +92,7 @@ calculate_premium <- function(issue_year, issue_age, face_amount, mortality_rate
     pv_expected_payout <- expected_payout / ((interest_rate)^i)
     premium_payments[i] <- pv_expected_payout
   }
-  # Calculate the premium as the sum of discounted expected payouts divided by the discount factor multiplication
+  # sum of discounted premium payouts
   premium <- sum(premium_payments) / sum(1 / ((interest_rate[as.character(issue_year:(issue_year+19))])^(1:term_years))) # Need to fix this part here
   return(premium)
 }
