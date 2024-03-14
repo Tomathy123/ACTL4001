@@ -121,7 +121,7 @@ annuity_due_term <- function (x, issue_year) {
   value[1] <- 1
   
   for (i in 1:19) {
-    value[i+1] <- prod(kpx[i],effective_interest[i])
+    value[i+1] <- prod(kpx[i],1/effective_interest[i])
   }
   
   
