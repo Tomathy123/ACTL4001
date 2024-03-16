@@ -158,5 +158,30 @@ yearly.prem <- insurance/annuity
 t_20$prem_at_issue_year <- yearly.prem
 
 
+# Discount/Accumulate to 2004 ---------------------------------------------
+adjustment_factor <- function(issueYear, prem_t20) {
+  if (issueYear > 2004) {
+    # Policy issued after 2004: Calculate discount factor
+    years <- 2004:(issueYear - 1)
+    rates <- eco_data$X1.yr.Risk.Free.Annual.Spot.Rate[eco_data$Year %in% years]
+    factor <- prod(1 / (1 + rates))
+  } else if (issueYear < 2004) {
+    # Policy issued before 2004: Calculate accumulation factor
+    years <- issueYear:2003
+    rates <- eco_data$X1.yr.Risk.Free.Annual.Spot.Rate[eco_data$Year %in% years]
+    factor <- prod(1 + rates)
+  } else {
+    # Issue year is 2004, no adjustment needed
+    factor <- 1
+  }
+  value <- prem_t20*factor
+  return(value)
+}
+
+premiums_at2004 <- mapply(adjustment_factor, t_20$Issue.year, t_20$prem_at_issue_year)
+
+t_20$prem_at_2004 <- premiums_at2004
+
+
 # Exporting the premiums for the t_20 -------------------------------------
 write_csv(t_20, "t20_with_premiums.csv")
