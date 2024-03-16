@@ -28,6 +28,13 @@ eco_data <- read.csv("economy_data.csv", header = TRUE)
 mortality_data <- read.csv("mortality_data.csv", header = TRUE)
 
 
+# Split the Inforce Data --------------------------------------------------
+splitbypolicytype <- split(inforce_data, inforce_data$Policy.type)
+
+t_20 <- splitbypolicytype[["T20"]]
+spwl <- splitbypolicytype[["SPWL"]]
+
+
 # Base Mortality Table Calculation ----------------------------------------
 #Removing the additional column
 mortality_data <- mortality_data[,-c(1)]
@@ -41,7 +48,7 @@ average_spot_rate <- mean(eco_data[,4])
 
 
 # Whole Life Function -----------------------------------------------------
-whole_life <- function(x, issue_year) {
+whole_life <- function(x, issue_year, face_value) {
   max_age <- max(which(!is.na(mortality_data$p_x)))
   n_years <- max_age - x
   
@@ -70,10 +77,20 @@ whole_life <- function(x, issue_year) {
     value[i] <- kpx[i] * mortality_data$Mortality.Rate[x+i-1] * prod(v[1:i])
   }
   
-  final_value <- sum(value)
+  final_value <- face_value*sum(value)
   return(final_value)
 }
 
 
-50000*whole_life(40,2000)
+whole_life(54,2001, 1000000)
+
+
+# Finding the Premiums for the SPWL Dataset -------------------------------
+premiums <- mapply(whole_life, spwl$Issue.age, spwl$Issue.year, spwl$Face.amount)
+
+spwl$prem_at_issue_year <- premiums
+
+
+# Exporting the premiums for the SPWL -------------------------------------
+write_csv(spwl, "spwl_with_premiums.csv")
 
