@@ -2,8 +2,6 @@ rm(list=ls()) # Clear Environment
 
 setwd("/Users/arneetkalra/Desktop/UNSW Onedrive/UNI/2024/ACTL4001/Assignment/Data") #change to your own
 # setwd("C:/Users/aluis/Documents/UNSW/ACTL4001") 
-# setwd("C:/Users/Anoushay/Desktop/ACTL4001/Cleaned Data")
-# setwd("/Users/karandeshwal/Documents/R/ACTL4001")
 
 # install.packages('tidyverse')
 # install.packages('dplyr')
