@@ -42,9 +42,9 @@ mortality_data <- mortality_data[,-c(1)]
 mortality_data$p_x <- 1- mortality_data$Mortality.Rate
 
 
+# Average Spot Rate -------------------------------------------------------
 average_spot_rate <- mean(eco_data[,4])
 #This is used, if current year is past 2023
-
 
 
 # Whole Life Function -----------------------------------------------------
