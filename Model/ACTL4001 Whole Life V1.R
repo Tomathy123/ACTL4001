@@ -75,5 +75,5 @@ whole_life <- function(x, issue_year) {
 }
 
 
-50000*whole_life_corrected(40,2023)
+50000*whole_life(40,2000)
 
