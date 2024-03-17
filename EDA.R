@@ -27,6 +27,11 @@ intervention_data <- read.csv("intervention_data.csv", header = TRUE)
 eco_data <- read.csv("economy_data.csv", header = TRUE)
 mortality_data <- read.csv("mortality_data.csv", header = TRUE)
 
+dead_data <- inforce_data[!is.na(inforce_data$Death.indicator), ]
+dead_data <- dead_data %>%
+  mutate(Age.at.death = Year.of.Death - Issue.year + Issue.age)
+alive_data <- inforce_data[is.na(inforce_data$Death.indicator), ]
+
 # Number of Smokers by Age and Urban/Rural
 smokers_byage <- inforce_data %>%
   group_by(Issue.age, Urban.vs.Rural) %>%
@@ -77,4 +82,23 @@ count <- inforce_data %>%
 
 count2 <- inforce_data %>%
   summarise(Total_urban = sum(Urban.vs.Rural=="Urban"), Total_rural = sum(Urban.vs.Rural=="Rural"))
+
+# Survival Curve
+ggplot(mortality_data, aes(x = Age, y = 1 - Mortality.Rate)) +
+  geom_line(color = "red") +
+  labs(title = "Survival Curve", x = "Age", y = "Survival Rate")
+
+# Policy amount distribution
+hist(alive_data$Face.amount)
+
+# Smoking vs non_smoking death age histogram
+ggplot(dead_data, aes(x = Age.at.death, fill = Smoker.Status)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Death Age Distribution of Smokers and Non-Smokers",
+       x = "Death Age",
+       y = "Density",
+       fill = "Smoker Status") +
+  scale_fill_manual(values = c("blue", "red"))+
+  theme_minimal()
+
 
