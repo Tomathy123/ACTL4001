@@ -4,7 +4,7 @@ rm(list=ls()) # Clear Environment
 
 
 # Directory ---------------------------------------------------------------
-setwd("/Users/arneetkalra/Desktop/UNSW Onedrive/UNI/2024/ACTL4001/Assignment/Data") #change to your own
+setwd("/Users/arneetkalra/Desktop/ACTL4001/Data") #change to your own
 # setwd("C:/Users/aluis/Documents/UNSW/ACTL4001") 
 
 
@@ -26,6 +26,7 @@ inforce_data <- read.csv("inforce_data.csv", header = TRUE)
 intervention_data <- read.csv("intervention_data.csv", header = TRUE)
 eco_data <- read.csv("economy_data.csv", header = TRUE)
 mortality_data <- read.csv("mortality_data.csv", header = TRUE)
+mortality_modified <- read.csv("base_mortmod.csv", header = TRUE)
 
 
 # Split the Inforce Data --------------------------------------------------
@@ -37,9 +38,18 @@ spwl <- splitbypolicytype[["SPWL"]]
 
 # Base Mortality Table Calculation ----------------------------------------
 #Removing the additional column
-mortality_data <- mortality_data[,-c(1)]
+#mortality_data <- mortality_data[,-c(1)]
 #finding the probability of survival at each age
-mortality_data$p_x <- 1- mortality_data$Mortality.Rate
+#mortality_data$p_x <- 1- mortality_data$Mortality.Rate
+
+#Renaming the Header
+colnames(mortality_modified) <- c("Age","MS", "FS", "MNS", "FNS")
+
+#Calculating the survival p_x
+mortality_modified$MS.p_x <- 1 - mortality_modified$MS
+mortality_modified$FS.p_x <- 1 - mortality_modified$FS
+mortality_modified$MNS.p_x <- 1 - mortality_modified$MNS
+mortality_modified$FNS.p_x <- 1 - mortality_modified$FNS
 
 
 # Average Spot Rate -------------------------------------------------------
@@ -48,16 +58,37 @@ average_spot_rate <- mean(eco_data[,4])
 
 
 # Whole Life Function -----------------------------------------------------
-whole_life <- function(x, issue_year, face_value) {
-  max_age <- max(which(!is.na(mortality_data$p_x)))
+whole_life <- function(x, issue_year, face_value, gender, s_status) {
+  max_age <- max(which(!is.na(mortality_modified$MS.p_x)))
   n_years <- max_age - x
   
   # Calculate survival probabilities (kpx)
-  kpx <- numeric(n_years + 1)
-  kpx[1] <- 1 # Initial survival probability is 1
-  for (i in 2:length(kpx)) {
-    kpx[i] <- kpx[i-1] * mortality_data$p_x[x + i - 2] # Corrected to use actual survival rates
-  }
+  if(gender == "M" & s_status == "S") {
+    MS.kpx <- numeric(n_years + 1)
+    MS.kpx[1] <- 1 # Initial survival probability is 1
+    for (i in 2:length(MS.kpx)) {
+      MS.kpx[i] <- MS.kpx[i-1] * mortality_modified$MS.p_x[x + i - 2] # Corrected to use actual survival rates
+    }
+  } else if(gender == "F" & s_status == "S") {
+    FS.kpx <- numeric(n_years + 1)
+    FS.kpx[1] <- 1 # Initial survival probability is 1
+    for (i in 2:length(FS.kpx)) {
+      FS.kpx[i] <- FS.kpx[i-1] * mortality_modified$FS.p_x[x + i - 2] # Corrected to use actual survival rates
+    } 
+    } else if(gender == "M" & s_status == "NS"){
+      MNS.kpx <- numeric(n_years + 1)
+      MNS.kpx[1] <- 1 # Initial survival probability is 1
+      for (i in 2:length(MNS.kpx)) {
+        MNS.kpx[i] <- MNS.kpx[i-1] * mortality_modified$MNS.p_x[x + i - 2] # Corrected to use actual survival rates
+      }
+    }else if(gender == "F" & s_status == "NS") {
+      FNS.kpx <- numeric(n_years + 1)
+      FNS.kpx[1] <- 1 # Initial survival probability is 1
+      for (i in 2:length(FNS.kpx)) {
+        FNS.kpx[i] <- FNS.kpx[i-1] * mortality_modified$FNS.p_x[x + i - 2] # Corrected to use actual survival rates
+      } 
+    }
+ 
   
   # Calculate spot rates for each year
   spot_rate_x <- rep(average_spot_rate, n_years) # Default to average if no data available
@@ -73,8 +104,15 @@ whole_life <- function(x, issue_year, face_value) {
   
   # Calculate the values (present value of expected benefits)
   value <- numeric(n_years)
-  for(i in 1:n_years) {
-    value[i] <- kpx[i] * mortality_data$Mortality.Rate[x+i-1] * prod(v[1:i])
+  for(i in 1:n_years) { if (gender == "M" & s_status == "S") {
+    value[i] <- MS.kpx[i] * mortality_modified$MS[x+i-1] * prod(v[1:i])
+  } else if (gender == "F" & s_status == "S") {
+    value[i] <- FS.kpx[i] * mortality_modified$FS[x+i-1] * prod(v[1:i])
+  } else if (gender == "M" & s_status == "NS") {
+    value[i] <- MNS.kpx[i] * mortality_modified$MNS[x+i-1] * prod(v[1:i])
+  } else if (gender == "F" & s_status == "NS") {
+    value[i] <- FNS.kpx[i] * mortality_modified$FNS[x+i-1] * prod(v[1:i])
+  }
   }
   
   final_value <- face_value*sum(value)
@@ -82,11 +120,12 @@ whole_life <- function(x, issue_year, face_value) {
 }
 
 
-whole_life(54,2001, 1000000)
+whole_life(54,2001, 1000000, 'F', 'S')
+
 
 
 # Finding the Premiums for the SPWL Dataset -------------------------------
-premiums <- mapply(whole_life, spwl$Issue.age, spwl$Issue.year, spwl$Face.amount)
+premiums <- mapply(whole_life, spwl$Issue.age, spwl$Issue.year, spwl$Face.amount, spwl$Sex, spwl$Smoker.Status)
 
 spwl$prem_at_issue_year <- premiums
 
