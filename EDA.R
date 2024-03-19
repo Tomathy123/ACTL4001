@@ -21,18 +21,36 @@ library(gmodels)
 library(zoo) # reading time datatype
 library(corrplot) # correlation plots
 
+
+
 # Read in the Data
 inforce_data <- read.csv("inforce_data.csv", header = TRUE)
 intervention_data <- read.csv("intervention_data.csv", header = TRUE)
 eco_data <- read.csv("economy_data.csv", header = TRUE)
 mortality_data <- read.csv("mortality_data.csv", header = TRUE)
 
+# Get mapping vectors in environment
+source('Mapping.R')
+
+# Split dead data
 dead_data <- inforce_data[!is.na(inforce_data$Death.indicator), ]
 dead_data <- dead_data %>%
-  mutate(Age.at.death = Year.of.Death - Issue.year + Issue.age)
-alive_data <- inforce_data[is.na(inforce_data$Death.indicator), ]
+  mutate(Age.at.death = Year.of.Death - Issue.year + Issue.age) %>%
+  left_join(mapping, by = c("Cause.of.Death" = "mapping_codes")) %>%
+  rename(Cause.of.Death.New = mapping_categories)
 
-# Number of Smokers by Age and Urban/Rural
+# Split lapsed data
+lapse_data <- inforce_data[!is.na(inforce_data$Lapse.Indicator), ]
+lapse_data <- lapse_data %>%
+  mutate(Age.at.lapse = Year.of.Lapse - Issue.year + Issue.age)
+
+# Split alive data (policy still in force)
+alive_data <- inforce_data[is.na(inforce_data$Death.indicator) & is.na(inforce_data$Lapse.Indicator), ]
+alive_data <- alive_data %>%
+  mutate(Current.age = 2023 - Issue.year + Issue.age)
+
+
+
 smokers_byage <- inforce_data %>%
   group_by(Issue.age, Urban.vs.Rural) %>%
   summarise(Total_Smokers = sum(Smoker.Status=="S"))
@@ -91,7 +109,7 @@ ggplot(mortality_data, aes(x = Age, y = 1 - Mortality.Rate)) +
 # Policy amount distribution
 hist(alive_data$Face.amount)
 
-# Smoking vs non_smoking death age histogram
+# Smoking vs non_smoking death age density
 ggplot(dead_data, aes(x = Age.at.death, fill = Smoker.Status)) +
   geom_density(alpha = 0.5) +
   labs(title = "Death Age Distribution of Smokers and Non-Smokers",
@@ -101,4 +119,41 @@ ggplot(dead_data, aes(x = Age.at.death, fill = Smoker.Status)) +
   scale_fill_manual(values = c("blue", "red"))+
   theme_minimal()
 
+# Smoking vs Non_smoking age at lapse
+ggplot(lapse_data, aes(x = Age.at.lapse, fill = Smoker.Status)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Lapse Age Distribution of Smokers and Non-Smokers",
+       x = "Lapse Age",
+       y = "Density",
+       fill = "Smoker Status") +
+  scale_fill_manual(values = c("blue", "red"))+
+  theme_minimal()
+
+# Cause of death vs age at death
+ggplot(dead_data, aes(x = Cause.of.Death.New, y = Age.at.death)) +
+  geom_jitter() +
+  labs(title = "Age at Death by Cause of Death",
+       x = "Cause of Death",
+       y = "Age at Death") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+ggplot(dead_data, aes(x = Age.at.death, y = Cause.of.Death.New))+
+  geom_count()
+
+
+# Death age vs risk level density
+ggplot(dead_data, aes(x = Age.at.death, fill = Underwriting.Class)) +
+  geom_density(alpha = 0.3) +
+  labs(title = "Death Age Distribution of Underwriting classes",
+       x = "Death Age",
+       y = "Density",
+       fill = "Underwriting class") +
+  scale_fill_manual(values = c("red", "blue", "yellow", "green"))+
+  theme_minimal()
+
+# No. Deaths per year
+ggplot(dead_data, aes(x = Year.of.Death)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +  # Adjust binwidth and colors as needed
+  labs(title = "Distribution of Year of Death", x = "Year of Death", y = "Frequency") +
+  theme_minimal()
 
