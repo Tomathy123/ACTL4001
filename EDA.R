@@ -151,6 +151,16 @@ ggplot(dead_data, aes(x = Age.at.death, fill = Underwriting.Class)) +
   scale_fill_manual(values = c("red", "blue", "yellow", "green"))+
   theme_minimal()
 
+# Death age vs Sex
+ggplot(dead_data, aes(x = Age.at.death, fill = Sex)) +
+  geom_density(alpha = 0.5) +
+  labs(title = "Death age distribution M vs F",
+       x = "Death Age",
+       y = "Density",
+       fill = "Sex") +
+  scale_fill_manual(values = c("blue", "red"))+
+  theme_minimal()
+
 # No. Deaths per year
 ggplot(dead_data, aes(x = Year.of.Death)) +
   geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +  # Adjust binwidth and colors as needed
