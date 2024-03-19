@@ -154,6 +154,30 @@ premiums_at2004 <- mapply(adjustment_factor, spwl$Issue.year, spwl$prem_at_issue
 
 spwl$prem_at_2004 <- premiums_at2004
 
+# Discount/Accumulate to 2023 ---------------------------------------------
+adjustment_factor2 <- function(issueYear, prem_wli) {
+  if (issueYear > 2023) {
+    # Policy issued after 2023: Calculate discount factor
+    years <- 2023:(issueYear - 1)
+    rates <- eco_data$X1.yr.Risk.Free.Annual.Spot.Rate[eco_data$Year %in% years]
+    factor <- prod(1 / (1 + rates))
+  } else if (issueYear < 2023) {
+    # Policy issued before 2023: Calculate accumulation factor
+    years <- issueYear:2023
+    rates <- eco_data$X1.yr.Risk.Free.Annual.Spot.Rate[eco_data$Year %in% years]
+    factor <- prod(1 + rates)
+  } else {
+    # Issue year is 2023, no adjustment needed
+    factor <- 1
+  }
+  value2 <- prem_wli*factor
+  return(value2)
+}
+
+
+premiums_at2023 <- mapply(adjustment_factor2, spwl$Issue.year, spwl$prem_at_issue_year)
+
+spwl$prem_at_2023 <- premiums_at2023
 
 # Exporting the premiums for the SPWL -------------------------------------
 write_csv(spwl, "spwl_with_premiums.csv")
