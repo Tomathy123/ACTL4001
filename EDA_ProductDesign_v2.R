@@ -50,8 +50,7 @@ dead_data_M <- dead_data %>% filter(Sex == "M")
 
 #### Product Design ####
 
-# Smoking Cessation - show that the death rate of smokers is very high in comparison to non smokers
-#                   - Could also show that most of the smokers have an underwriting class of moderate/ high
+# Smoking Cessation
 
 # Distribution of Death Data by age and sex
 
@@ -193,7 +192,7 @@ ggplot(underwriting_prop_M, aes(Underwriting.Class, proportion, fill = Smoker.St
                                            vjust = -0.3, size=3)
 
 
-# Active Ageing - show the distribution by issue and that most participants are 35-55 (i.e. securing their future)
+# Active Ageing
 
 # distribution by issue age
 
@@ -297,7 +296,7 @@ ggplot(data = Causes_Death_FNS, aes(Cause.of.Death, count)) +
        x = "Causes of Death",
        y = "Frequency") + theme_minimal()
 
-# Fitness App - Respiratory and that the 2/3 of the population is urban (assuming that they are more technologically advanced)
+# Fitness App
 
 Rur_Urb_Region <- inforce_data_death %>% group_by(Region, Urban.vs.Rural) %>% summarise(count = n())
 Rur_Urb_Region <- Rur_Urb_Region %>% mutate(proportion = count/sum(count))
