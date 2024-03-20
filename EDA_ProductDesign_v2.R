@@ -51,7 +51,7 @@ dead_data_M <- dead_data %>% filter(Sex == "M")
 #### Product Design ####
 
 # Smoking Cessation - show that the death rate of smokers is very high in comparison to non smokers
-#                   - Could also show that most of the smokers have an underwriting class of high/very high
+#                   - Could also show that most of the smokers have an underwriting class of moderate/ high
 
 # Distribution of Death Data by age and sex
 
@@ -202,7 +202,7 @@ ggplot(data = inforce_data_death, aes(x = Issue.age)) +
   geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +  # Adjust binwidth as needed
   labs(title = "Distribution of Issue Age",
        x = "Issue Age",
-       y = "Frequency")
+       y = "Frequency") + theme_minimal()
 
 # Female
 ggplot(data = inforce_data_death_F, aes(x = Issue.age)) +
@@ -219,17 +219,31 @@ ggplot(data = inforce_data_death_M, aes(x = Issue.age)) +
        y = "Frequency")
 
 
+# Causes of Death for people aged 55 and over
+
+Death_over55 <- dead_data %>% filter(Age.at.death >= "55") %>% group_by(Cause.of.Death) %>%
+  summarise(count= n()) %>% mutate(proportion = count/sum(count))
+
+ggplot(Death_over55, aes(Cause.of.Death, proportion)) +
+  geom_bar(stat = "identity", position = "dodge", fill = "skyblue", color = "black") + 
+  scale_y_continuous(labels = scales::percent_format(scale = 100)) + theme_minimal() + 
+  labs(title = "Causes of Death for Participants Aged 55 and over",
+       x = "Cause of Death",
+       y = "Proportion of Deaths")
+
+
 # Healthcare - The most prevalent reasons for mortality (respiratory, cancer and another thing)
 
 # All Smokers
 Causes_Death_S <- dead_data  %>%  filter(Smoker.Status == "S") %>% group_by(Cause.of.Death) %>%
-summarise(count = n()) %>% arrange(desc(count))
+summarise(count = n()) %>% arrange(desc(count)) %>% mutate(proportion = count/sum(count))
 
-ggplot(data = Causes_Death_S, aes(Cause.of.Death, count)) +
-  geom_bar(stat = "identity", position = "dodge") +  # Adjust binwidth as needed
+ggplot(data = Causes_Death_S, aes(Cause.of.Death, proportion)) +
+  geom_bar(stat = "identity", position = "dodge", fill = "skyblue", color = "black") +  # Adjust binwidth as needed
   labs(title = "Distribution of Causes of Death All Smokers",
        x = "Causes of Death",
-       y = "Frequency") + theme_minimal()
+       y = "Proportion of Deaths") + theme_minimal() +
+  scale_y_continuous(labels = scales::percent_format(scale = 100))
 
 # Male Smokers
 Causes_Death_MS <- dead_data_M  %>%  filter(Smoker.Status == "S") %>% group_by(Cause.of.Death) %>%
@@ -251,15 +265,17 @@ ggplot(data = Causes_Death_FS, aes(Cause.of.Death, count)) +
        x = "Causes of Death",
        y = "Frequency") + theme_minimal()
 
+
 # All Non-Smokers
 Causes_Death_NS <- dead_data  %>%  filter(Smoker.Status == "NS") %>% group_by(Cause.of.Death) %>%
-  summarise(count = n()) %>% arrange(desc(count))
+  summarise(count = n()) %>% arrange(desc(count)) %>% mutate(proportion = count/sum(count))
 
-ggplot(data = Causes_Death_NS, aes(Cause.of.Death, count)) +
-  geom_bar(stat = "identity", position = "dodge") +  # Adjust binwidth as needed
+ggplot(data = Causes_Death_NS, aes(Cause.of.Death, proportion)) +
+  geom_bar(stat = "identity", position = "dodge", fill = "skyblue", color = "black") +  # Adjust binwidth as needed
   labs(title = "Distribution of Causes of Death All Non-Smokers",
        x = "Causes of Death",
-       y = "Frequency") + theme_minimal()
+       y = "Proportion of Deaths") + theme_minimal() +
+  scale_y_continuous(labels = scales::percent_format(scale = 100))
 
 # Male Non-Smokers
 Causes_Death_MNS <- dead_data_M  %>%  filter(Smoker.Status == "NS") %>% group_by(Cause.of.Death) %>%
